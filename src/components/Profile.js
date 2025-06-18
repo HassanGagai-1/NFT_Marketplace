@@ -4,6 +4,7 @@ import MarketplaceJSON from "../Marketplace.json";
 import axios from "axios";
 import { useState } from "react";
 import NFTTile from "./NFTTile";
+import { ethers } from "ethers";
 
 export default function Profile () {
     const [data, updateData] = useState([]);
@@ -12,11 +13,10 @@ export default function Profile () {
     const [totalPrice, updateTotalPrice] = useState("0");
 
     async function getNFTData(tokenId) {
-        const ethers = require("ethers");
         let sumPrice = 0;
         //After adding your Hardhat network to your metamask, this code will get providers and signers
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
         const addr = await signer.getAddress();
 
         //Pull the deployed contract instance
@@ -35,7 +35,7 @@ export default function Profile () {
             let meta = await axios.get(tokenURI);
             meta = meta.data;
 
-            let price = ethers.utils.formatUnits(i.price.toString(), 'ether');
+            let price = ethers.formatUnits(i.price.toString(), 'ether');
             let item = {
                 price,
                 tokenId: i.tokenId.toNumber(),
