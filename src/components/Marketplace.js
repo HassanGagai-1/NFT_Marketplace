@@ -27,7 +27,7 @@ async function getAllNFTs() {
         let price = ethers.formatUnits(i.price.toString(), 'ether');
         let item = {
             price,
-            tokenId: i.tokenId.toNumber(),
+            tokenId: i.tokenId.toNumber,
             seller: i.seller,
             owner: i.owner,
             image: meta.image,
