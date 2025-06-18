@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import { ethers } from "ethers";
 
 function Navbar() {
 
@@ -14,9 +15,8 @@ const [currAddress, updateAddress] = useState('0x');
 
 async function getAddress() {
   try {
-    const ethers = require("ethers");
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
     const addr = await signer.getAddress();
     updateAddress(addr);
   } catch (error) {

@@ -3,11 +3,11 @@ import { useState } from "react";
 import { uploadFileToIPFS, uploadJSONToIPFS } from "../pinata";
 import Marketplace from '../Marketplace.json';
 import { useLocation } from "react-router";
+import { ethers } from "ethers";
 
 export default function SellNFT () {
     const [formParams, updateFormParams] = useState({ name: '', description: '', price: ''});
     const [fileURL, setFileURL] = useState(null);
-    const ethers = require("ethers");
     const [message, updateMessage] = useState('');
     const location = useLocation();
 
@@ -81,8 +81,8 @@ async function listNFT(e) {
             if(metadataURL === -1)
                 return;
             //After adding your Hardhat network to your metamask, this code will get providers and signers
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
+            const provider = new ethers.BrowserProvider(window.ethereum);
+            const signer = await provider.getSigner();
             disableButton();
             updateMessage("Uploading NFT(takes 5 mins).. please dont click anything!")
 
@@ -90,7 +90,7 @@ async function listNFT(e) {
             let contract = new ethers.Contract(Marketplace.address, Marketplace.abi, signer)
 
             //massage the params to be sent to the create NFT request
-            const price = ethers.utils.parseUnits(formParams.price, 'ether')
+            const price = ethers.parseUnits(formParams.price, 'ether')
             let listingPrice = await contract.getListPrice()
             listingPrice = listingPrice.toString()
 
