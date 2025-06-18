@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 import Marketplace from './Marketplace.json'; 
 import './App.css';
+import { GetIpfsUrlFromPinata } from './utils';
+import NFTCard from './components/NFTCard';
 
 function App() {
   const [account, setAccount] = useState('');
@@ -30,12 +32,36 @@ function App() {
     }
   };
 
+  const disconnectWallet = () => {
+    setAccount('');
+    setNfts([]);
+  };
+
   const loadNFTs = async () => {
     if (!window.ethereum) return;
     const provider = new ethers.BrowserProvider(window.ethereum);
     const contract = new ethers.Contract(Marketplace.address, Marketplace.abi, provider);
     const items = await contract.getAllNFTs();
-    setNfts(items);
+    const data = await Promise.all(
+      items.map(async item => {
+        const tokenURI = await contract.tokenURI(item.tokenId);
+        let meta = {};
+        try {
+          const url = GetIpfsUrlFromPinata(tokenURI) || tokenURI;
+          const response = await fetch(url);
+          meta = await response.json();
+        } catch (err) {
+          console.log('Failed to fetch metadata', err);
+        }
+        return {
+          ...item,
+          image: meta.image ? GetIpfsUrlFromPinata(meta.image) || meta.image : '',
+          name: meta.name || '',
+          description: meta.description || ''
+        };
+      })
+    );
+    setNfts(data);
   };
 
   const mintNFT = async () => {
@@ -69,22 +95,18 @@ function App() {
 
   return (
     <div className="App">
+      <header className="header">
+        {account ? (
+          <button onClick={disconnectWallet} className="wallet-btn">
+            {account.substring(0, 6)}...{account.substring(account.length - 4)} (Disconnect)
+          </button>
+        ) : (
+          <button onClick={connectWallet} className="wallet-btn">Connect Wallet</button>
+        )}
+      </header>
+
       <h1>NFT Marketplace</h1>
-      {account ? (
-        <p>Connected wallet: {account}</p>
-      ) : (
-        <>
-        <button onClick={connectWallet}>Connect Wallet</button>
-        </>
-        
-      )}
-      {!account ? (
-        <p>Welcome to the NFT Marketplace!</p>
-      ) : (
-        <>
-          <button onClick={disconnectWallet}>Disconnect Wallet</button>
-        </>
-      )}
+
 
       {account && (
         <div className="mint">
@@ -106,18 +128,11 @@ function App() {
       )}
 
       <h2>Marketplace</h2>
-      <ul>
+      <div className="nft-grid">
         {nfts.map((nft, idx) => (
-          <li key={idx} className="nft">
-            <p>Token ID: {nft.tokenId.toString()}</p>
-            <p>Owner: {nft.owner}</p>
-            <p>Price: {ethers.formatEther(nft.price)} ETH</p>
-            {nft.currentlyListed && account && (
-              <button onClick={() => buyNFT(nft.tokenId, nft.price)}>Buy</button>
-            )}
-          </li>
+          <NFTCard key={idx} nft={nft} account={account} buyNFT={buyNFT} />
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
