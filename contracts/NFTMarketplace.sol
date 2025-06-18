@@ -2,7 +2,22 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+// Minimal counter library used to track incremental ids
+library Counters {
+    struct Counter {
+        uint256 _value;
+    }
+
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal {
+        unchecked {
+            counter._value += 1;
+        }
+    }
+}
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
@@ -151,6 +166,10 @@ contract NFTMarketplace is ERC721URIStorage {
         require(msg.value == price, "Please submit the asking price in order to complete the purchase");
 
         idToListedNFT[tokenId].currentlyListed = false;
+<<<<<<< HEAD
+        idToListedNFT[tokenId].seller = payable(msg.sender);
+=======
+>>>>>>> main
         idToListedNFT[tokenId].owner = payable(msg.sender);
         _itemsSold.increment();
 
