@@ -1,8 +1,10 @@
 const key = process.env.REACT_APP_PINATA_KEY;
 const secret = process.env.REACT_APP_PINATA_SECRET;
 
-import axios from 'axios';
-import FormData from 'form-data';
+// import axios from 'axios';
+// import FormData from 'form-data';
+const axios = require('axios');
+const FormData = require('form-data');
 
 export const uploadJSONToIPFS = async(JSONBody) => {
     const url = `https://api.pinata.cloud/pinning/pinJSONToIPFS`;
