@@ -139,6 +139,7 @@
 //   );
 // }
 
+// export default App;
 import './App.css';
 import Navbar from './components/Navbar.js';
 import Marketplace from './components/Marketplace';
