@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import Marketplace from '../Marketplace.json';
+import Marketplace from './Marketplace.json'; 
 import './App.css';
 import { GetIpfsUrlFromPinata } from './utils';
 import NFTCard from './components/NFTCard';
@@ -17,6 +17,17 @@ function App() {
         setAccount(accounts[0]);
       } catch (err) {
         console.log('wallet connection failed');
+      }
+    }
+  };
+  const disconnectWallet = async () => {
+    if (window.ethereum) {
+      try {
+        await window.ethereum.request({ method: 'eth_requestAccounts', params: [{ eth_accounts: {} }] });
+        setAccount('');
+        window.location.reload();
+      } catch (err) {
+        console.log('wallet disconnection failed');
       }
     }
   };
@@ -80,6 +91,7 @@ function App() {
       loadNFTs();
     }
   }, [account]);
+  
 
   return (
     <div className="App">
@@ -94,6 +106,7 @@ function App() {
       </header>
 
       <h1>NFT Marketplace</h1>
+
 
       {account && (
         <div className="mint">
